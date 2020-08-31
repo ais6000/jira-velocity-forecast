@@ -9,7 +9,3 @@ UI.
 The whole tool is contained within one file (forecast.php) for easier setting-up and hosting.
 1. Set up forecast.php anywhere within a web server that supports PHP
 2. Open the file in your browser
-
-#### TODO
-* Divide trend chart into deciles instead of weeks
-* Error handling for invalid csv file

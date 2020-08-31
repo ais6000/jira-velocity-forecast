@@ -8,6 +8,7 @@ $countries = ['FI', 'SE', 'GB', 'US', 'AE', 'NO', 'DE', 'ZA', 'BE', 'NL', 'EE'];
 $currentCountry = isset($_GET['c']) ? $_GET['c'] : $countries[0];
 
 if (isset($_FILES['file']) && !empty($_FILES['file']['tmp_name'])) {
+    $metricTitle = $_POST['metric'] == METRIC_STORY_POINTS ? "story points" : "number of stories";
     $edgeDates = [null, null];
     $fileContents = \file($_FILES['file']['tmp_name']);
     $numberOfStories = \count($fileContents) - 1;
@@ -17,6 +18,9 @@ if (isset($_FILES['file']) && !empty($_FILES['file']['tmp_name'])) {
             continue;
         }
         $rowData = \explode(",", $row);
+        if (!isset($rowData[1]) || !isDate($rowData[0])) {
+            continue;
+        }
         $rowData[0] = \date("Y-m-d", \strtotime($rowData[0]));
         $rowData[1] = (int)$rowData[1];
         if (!$rowData[1]) {
@@ -31,58 +35,71 @@ if (isset($_FILES['file']) && !empty($_FILES['file']['tmp_name'])) {
         }
     }
 
-    $dates = [];
-    $intervalTotals = [];
-    $intervalData = [];
-    $holidays = [];
-    $currentDate = $edgeDates[0];
-    $intervalCounter = 0;
-    while ($currentDate <= $edgeDates[1]) {
-        $intervalCounter++;
-        if (!\isHoliday($currentDate)) {
-            if (!isset($dates[$currentDate])) {
-                $dates[$currentDate] = [
-                    'story_points' => 0,
-                    'number_of_stories' => 0,
-                ];
-            }
-
-            foreach ($sourceData as $dataRow) {
-                if ($dataRow[0] != $currentDate) {
-                    continue;
+    if (!empty($sourceData)) {
+        $dates = [];
+        $intervalTotals = [];
+        $intervalData = [];
+        $holidays = [];
+        $currentDate = $edgeDates[0];
+        $intervalCounter = 0;
+        while ($currentDate <= $edgeDates[1]) {
+            $intervalCounter++;
+            if (!\isHoliday($currentDate)) {
+                if (!isset($dates[$currentDate])) {
+                    $dates[$currentDate] = [
+                        'story_points' => 0,
+                        'number_of_stories' => 0,
+                    ];
                 }
-                $dates[$currentDate]['number_of_stories']++;
-                $dates[$currentDate]['story_points'] += (int)$dataRow[1];
+
+                foreach ($sourceData as $dataRow) {
+                    if ($dataRow[0] != $currentDate) {
+                        continue;
+                    }
+                    $dates[$currentDate]['number_of_stories']++;
+                    $dates[$currentDate]['story_points'] += (int)$dataRow[1];
+                }
+            }
+
+            $dailyData = $dates[$currentDate]['story_points'] ?? 0;
+            if ($_POST['metric'] == METRIC_NUM_OF_STORIES) {
+                $dailyData = $dates[$currentDate]['number_of_stories'] ?? 0;
+            }
+            $intervalData[] = $dailyData;
+            if ($intervalCounter >= (int)$_POST['days'] * 1.4) {
+                $intervalTitle = \date("Y-m-d", \strtotime($currentDate));
+                $intervalTotals[$intervalTitle] = \array_sum($intervalData);
+                $intervalData = [];
+                $intervalCounter = 0;
+            }
+
+            $currentDate = \date("Y-m-d", \strtotime("+1 day", \strtotime($currentDate)));
+        }
+
+        $data = [];
+        for ($iterator = 0; $iterator < ITERATIONS; $iterator++) {
+            $data[$iterator] = 0;
+            for ($dayCounter = 0; $dayCounter < (int)$_POST['days']; $dayCounter++) {
+                $value = $dates[\array_rand($dates)];
+                $data[$iterator] += $_POST['metric'] == METRIC_STORY_POINTS ? $value['story_points'] : $value['number_of_stories'];
             }
         }
-
-        $dailyData = $dates[$currentDate]['story_points'] ?? 0;
-        if ($_POST['metric'] == METRIC_NUM_OF_STORIES) {
-            $dailyData = $dates[$currentDate]['number_of_stories'] ?? 0;
-        }
-        $intervalData[] = $dailyData;
-        if ($intervalCounter >= (int)$_POST['days'] * 1.4) {
-            $intervalTitle = \date("Y-m-d", \strtotime($currentDate));
-            $intervalTotals[$intervalTitle] = \array_sum($intervalData);
-            $intervalData = [];
-            $intervalCounter = 0;
-        }
-
-        $currentDate = \date("Y-m-d", \strtotime("+1 day", \strtotime($currentDate)));
     }
-
-    $data = [];
-    for ($iterator = 0; $iterator < ITERATIONS; $iterator++) {
-        $data[$iterator] = 0;
-        for ($dayCounter = 0; $dayCounter < (int)$_POST['days']; $dayCounter++) {
-            $value = $dates[\array_rand($dates)];
-            $data[$iterator] += $_POST['metric'] == METRIC_STORY_POINTS ? $value['story_points'] : $value['number_of_stories'];
-        }
-    }
-
-    $metricTitle = $_POST['metric'] == METRIC_STORY_POINTS ? "story points" : "number of stories";
 }
 
+function isDate($dateString)
+{
+    if (empty($dateString)) {
+        return false;
+    }
+    $dateParts = \explode(" ", $dateString);
+    $dateParts = \explode("-", $dateParts[0]);
+    if (\count($dateParts) != 3) {
+        return false;
+    }
+
+    return checkdate($dateParts[1], $dateParts[2], $dateParts[0]);
+}
 function isHoliday($date)
 {
     $apiUrl = "https://date.nager.at/api/v2/PublicHolidays/"; // 2020/FI
@@ -166,7 +183,7 @@ function isHoliday($date)
             </div>
         <?php endif; ?>
     </div>
-    <?php if (isset($_FILES['file']) && empty($_FILES['file']['tmp_name'])): ?>
+    <?php if (isset($_FILES['file']) && (empty($data) || empty($_FILES['file']['tmp_name']))): ?>
         <div class="alert alert-danger" role="alert">
             <svg width="1.6em" height="1.6em" viewBox="0 0 16 16" class="bi bi-shield-exclamation" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
                 <path fill-rule="evenodd" d="M5.443 1.991a60.17 60.17 0 0 0-2.725.802.454.454 0 0 0-.315.366C1.87 7.056 3.1 9.9 4.567 11.773c.736.94 1.533 1.636 2.197 2.093.333.228.626.394.857.5.116.053.21.089.282.11A.73.73 0 0 0 8 14.5c.007-.001.038-.005.097-.023.072-.022.166-.058.282-.111.23-.106.525-.272.857-.5a10.197 10.197 0 0 0 2.197-2.093C12.9 9.9 14.13 7.056 13.597 3.159a.454.454 0 0 0-.315-.366c-.626-.2-1.682-.526-2.725-.802C9.491 1.71 8.51 1.5 8 1.5c-.51 0-1.49.21-2.557.491zm-.256-.966C6.23.749 7.337.5 8 .5c.662 0 1.77.249 2.813.525a61.09 61.09 0 0 1 2.772.815c.528.168.926.623 1.003 1.184.573 4.197-.756 7.307-2.367 9.365a11.191 11.191 0 0 1-2.418 2.3 6.942 6.942 0 0 1-1.007.586c-.27.124-.558.225-.796.225s-.526-.101-.796-.225a6.908 6.908 0 0 1-1.007-.586 11.192 11.192 0 0 1-2.417-2.3C2.167 10.331.839 7.221 1.412 3.024A1.454 1.454 0 0 1 2.415 1.84a61.11 61.11 0 0 1 2.772-.815z"/>
@@ -259,7 +276,7 @@ function isHoliday($date)
         </div>
     <?php endif; ?>
 
-    <?php if (isset($data)): ?>
+    <?php if (!empty($data)): ?>
         <div class="alert alert-success" role="alert">
             <svg width="1.6em" height="1.6em" viewBox="0 0 16 16" class="bi bi-check-square" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
                 <path fill-rule="evenodd" d="M14 1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
