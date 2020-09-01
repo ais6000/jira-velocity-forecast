@@ -16,7 +16,7 @@
             </p>
             <p>
                 Result is achieved through <a href="https://en.wikipedia.org/wiki/Monte_Carlo_method" target="_blank">Monte Carlo simulation</a>
-                which randomizes the provided Jira data and iterates through the data several times (<?= ITERATIONS ?> by default)
+                which randomizes the provided Jira data and iterates through the data several times (<?= $config->getConfig('iterations') ?> by default)
                 to achieve, not just the average, but a wider range of values and their probabilities for future output.
                 The end result is a histogram graph in the form of a "bell curve", where high bars in the middle represent
                 the most probable values you should look for.

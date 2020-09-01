@@ -15,8 +15,8 @@
             <div class="col-xl" style="height: 90px;">
                 <label for="metric">3. Forecast metric</label>
                 <select class="custom-select d-block w-100" id="metric" name="metric">
-                    <option value="<?= METRIC_NUM_OF_STORIES ?>">Number of stories</option>
-                    <option value="<?= METRIC_STORY_POINTS ?>">Story points</option>
+                    <option value="<?= $config->getConfig('metric_num_of_stories') ?>">Number of stories</option>
+                    <option value="<?= $config->getConfig('metric_story_points') ?>">Story points</option>
                 </select>
             </div>
         </div>

@@ -1,31 +1,27 @@
 <?php
+/**
+ * TODO:
+ *  Extract into models
+ *  Transform into controller class
+ */
 namespace Controller;
 
+$config = new \Resources\Config();
+
 $baseUrl = isset($_GET['c']) ? "?c=" . $_GET['c'] : "?";
-$currentCountry = isset($_GET['c']) ? $_GET['c'] : COUNTRIES[0];
+$currentCountry = isset($_GET['c']) ? $_GET['c'] : $config->getConfig('countries')[0];
 
 $date = new \Model\Date($currentCountry);
+$fileReader = new \Model\FileReader($config, $date);
+if (isset($_FILES['file'])) {
+    $fileReader->setFile($_FILES['file']);
+}
 
-if (isset($_FILES['file']) && !empty($_FILES['file']['tmp_name'])) {
-    $metricTitle = $_POST['metric'] == METRIC_STORY_POINTS ? "story points" : "number of stories";
+if ($fileReader->hasData()) {
+    $sourceData = $fileReader->getData();
+
     $edgeDates = [null, null];
-    $fileContents = \file($_FILES['file']['tmp_name']);
-    $numberOfStories = \count($fileContents) - 1;
-    $sourceData = [];
-    foreach ($fileContents as $rowNumber => $row) {
-        if (!$rowNumber) {
-            continue;
-        }
-        $rowData = \explode(",", $row);
-        if (!isset($rowData[1]) || !$date->isDate($rowData[0])) {
-            continue;
-        }
-        $rowData[0] = \date("Y-m-d", \strtotime($rowData[0]));
-        $rowData[1] = (int)$rowData[1];
-        if (!$rowData[1]) {
-            $rowData[1] = AVG_STORY_POINT;
-        }
-        $sourceData[] = $rowData;
+    foreach ($sourceData as $rowData) {
         if ($edgeDates[0] === null || $edgeDates[0] > $rowData[0]) {
             $edgeDates[0] = $rowData[0];
         }
@@ -61,7 +57,7 @@ if (isset($_FILES['file']) && !empty($_FILES['file']['tmp_name'])) {
             }
 
             $dailyData = $dates[$currentDate]['story_points'] ?? 0;
-            if ($_POST['metric'] == METRIC_NUM_OF_STORIES) {
+            if ($_POST['metric'] == $config->getConfig('metric_num_of_stories')) {
                 $dailyData = $dates[$currentDate]['number_of_stories'] ?? 0;
             }
             $intervalData[] = $dailyData;
@@ -76,15 +72,15 @@ if (isset($_FILES['file']) && !empty($_FILES['file']['tmp_name'])) {
         }
 
         $velocityData = [];
-        for ($iterator = 0; $iterator < ITERATIONS; $iterator++) {
+        for ($iterator = 0; $iterator < $config->getConfig('iterations'); $iterator++) {
             $velocityData[$iterator] = 0;
             for ($dayCounter = 0; $dayCounter < (int)$_POST['days']; $dayCounter++) {
                 $value = $dates[\array_rand($dates)];
-                $velocityData[$iterator] += $_POST['metric'] == METRIC_STORY_POINTS ? $value['story_points'] : $value['number_of_stories'];
+                $velocityData[$iterator] += $_POST['metric'] == $config->getConfig('metric_story_points') ? $value['story_points'] : $value['number_of_stories'];
             }
         }
     }
 }
 
 $hasData = isset($velocityData);
-$invalidFile = isset($_FILES['file']) && (empty($velocityData) || empty($_FILES['file']['tmp_name']));
+$invalidFile = $fileReader->hasData() && empty($velocityData);

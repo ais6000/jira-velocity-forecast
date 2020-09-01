@@ -9,7 +9,7 @@
                     <span class="flag-icon flag-icon-<?= \strtolower($currentCountry) ?>"></span>
                 </a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                    <?php foreach (COUNTRIES as $country): ?>
+                    <?php foreach ($config->getConfig('countries') as $country): ?>
                         <a class="dropdown-item" href="?c=<?= $country ?>">
                             <span class="flag-icon flag-icon-<?= \strtolower($country) ?>"></span> <?= $country ?>
                         </a>

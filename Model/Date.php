@@ -6,14 +6,14 @@ class Date
     const API_URL = "https://date.nager.at/api/v2/PublicHolidays/"; // 2020/FI
 
     /**
-     * @var array
-     */
-    private $holidays;
-
-    /**
      * @var string
      */
     private $currentCountry;
+
+    /**
+     * @var array
+     */
+    private $holidays;
 
     public function __construct($currentCountry)
     {
