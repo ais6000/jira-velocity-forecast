@@ -35,6 +35,16 @@ class Velocity
      */
     private $velocityDates;
 
+    /**
+     * @var array
+     */
+    private $velocityData;
+
+    /**
+     * @var array
+     */
+    private $intervalData;
+
     public function __construct(
         FileReader $fileReader,
         Date $date,
@@ -76,45 +86,60 @@ class Velocity
         return $this->edgeDates;
     }
 
+    /**
+     * @return array
+     */
     public function getVelocityData()
     {
-        $dates = $this->getVelocityDates();
+        if ($this->velocityData === null) {
+            $dates = $this->getVelocityDates();
 
-        $velocityData = [];
-        for ($iterator = 0; $iterator < $this->config->getConfig('iterations'); $iterator++) {
-            $velocityData[$iterator] = 0;
-            for ($dayCounter = 0; $dayCounter < (int)$this->request->getDays(); $dayCounter++) {
-                $value = $dates[\array_rand($dates)];
-                $velocityData[$iterator] += $this->request->getMetric() == $this->config->getConfig('metric_story_points') ? $value['story_points'] : $value['number_of_stories'];
+            $this->velocityData = [];
+            for ($iterator = 0; $iterator < $this->config->getConfig('iterations'); $iterator++) {
+                $this->velocityData[$iterator] = 0;
+                for ($dayCounter = 0; $dayCounter < (int)$this->request->getDays(); $dayCounter++) {
+                    $value = $dates[\array_rand($dates)];
+
+                    $addedValue = $value['number_of_stories'];
+                    if ($this->request->getMetric() == $this->config->getConfig('metric_story_points')) {
+                        $addedValue = $value['story_points'];
+                    }
+                    $this->velocityData[$iterator] += $addedValue;
+                }
             }
         }
 
-        return $velocityData;
+        return $this->velocityData;
     }
 
+    /**
+     * @return array
+     */
     public function getIntervalData()
     {
-        $intervalTotals = [];
-        $dates = $this->getVelocityDates();
+        if ($this->intervalData === null) {
+            $this->intervalData = [];
+            $dates = $this->getVelocityDates();
 
-        $intervalData = [];
-        $intervalCounter = 0;
-        foreach ($dates as $currentDate => $dateVelocity) {
-            $intervalCounter++;
-            $dailyData = $dateVelocity['story_points'] ?? 0;
-            if ($this->request->getMetric() == $this->config->getConfig('metric_num_of_stories')) {
-                $dailyData = $dateVelocity['number_of_stories'] ?? 0;
-            }
-            $intervalData[] = $dailyData;
-            if ($intervalCounter >= (int)$this->request->getDays() * 1.4) {
-                $intervalTitle = \date("Y-m-d", \strtotime($currentDate));
-                $intervalTotals[$intervalTitle] = \array_sum($intervalData);
-                $intervalData = [];
-                $intervalCounter = 0;
+            $intervalData = [];
+            $intervalCounter = 0;
+            foreach ($dates as $currentDate => $dateVelocity) {
+                $intervalCounter++;
+                $dailyData = $dateVelocity['story_points'] ?? 0;
+                if ($this->request->getMetric() == $this->config->getConfig('metric_num_of_stories')) {
+                    $dailyData = $dateVelocity['number_of_stories'] ?? 0;
+                }
+                $intervalData[] = $dailyData;
+                if ($intervalCounter >= (int)$this->request->getDays() * 1.4) {
+                    $intervalTitle = \date("Y-m-d", \strtotime($currentDate));
+                    $this->intervalData[$intervalTitle] = \array_sum($intervalData);
+                    $intervalData = [];
+                    $intervalCounter = 0;
+                }
             }
         }
 
-        return $intervalTotals;
+        return $this->intervalData;
     }
 
     /**

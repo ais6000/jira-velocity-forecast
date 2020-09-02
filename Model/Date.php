@@ -52,10 +52,12 @@ class Date
 
         $year = \date("Y", \strtotime($date));
         if (!isset($this->holidays[$year])) {
-            $ch = \curl_init(\sprintf(self::API_URL . "%s/%s", $year, \strtolower($this->country->getCurrentCountry())));
-            \curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            $holidayData = \curl_exec($ch);
-            if ($holidayData === false || \curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
+            $handle = \curl_init(
+                \sprintf(self::API_URL . "%s/%s", $year, \strtolower($this->country->getCurrentCountry()))
+            );
+            \curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+            $holidayData = \curl_exec($handle);
+            if ($holidayData === false || \curl_getinfo($handle, CURLINFO_HTTP_CODE) != 200) {
                 $holidayData = "[]";
             }
             $holidayData = \json_decode($holidayData);

@@ -23,6 +23,7 @@ class Request
 
     /**
      * @return string|null
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     public function getCountryCode()
     {
@@ -44,6 +45,7 @@ class Request
 
     /**
      * @return array|null
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     public function getFile()
     {
@@ -52,6 +54,7 @@ class Request
 
     /**
      * @return string|null
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     public function getMetric()
     {
@@ -60,6 +63,7 @@ class Request
 
     /**
      * @return string|null
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     public function getDays()
     {

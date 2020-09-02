@@ -6,6 +6,5 @@ graph can be used, for example, in planning future sprints of any length. More d
 UI.
 
 ### How to use
-The whole tool is contained within one file (forecast.php) for easier setting-up and hosting.
-1. Set up forecast.php anywhere within a web server that supports PHP
-2. Open the file in your browser
+1. Set up anywhere within a web server that supports PHP
+2. Open index.php in browser

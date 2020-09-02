@@ -13,8 +13,11 @@ class Country
         $this->request = $request;
     }
 
-    public function getCurrentCountry()
+    /**
+     * @return string
+     */
+    public function getCurrentCountry() : string
     {
-        return $this->request->getCountryCode() ? $this->request->getCountryCode() : self::COUNTRIES[0];
+        return $this->request->getCountryCode() ?? self::COUNTRIES[0];
     }
 }
