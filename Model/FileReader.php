@@ -5,6 +5,8 @@ use Resources\Config;
 
 class FileReader
 {
+    const TEMP_NAME = 'tmp_name';
+
     /**
      * @var Config
      */
@@ -15,12 +17,22 @@ class FileReader
      */
     private $date;
 
+    /**
+     * @var array[]
+     */
+    private $sourceData;
+
     public function __construct(
         Config $config,
-        Date $date
+        Date $date,
+        Request $request
     ) {
         $this->config = $config;
         $this->date = $date;
+
+        if ($request->getFile()) {
+            $this->setFile($request->getFile());
+        }
     }
 
     /**
@@ -29,7 +41,10 @@ class FileReader
      */
     private $file;
 
-    public function setFile($file)
+    /**
+     * @param array $file
+     */
+    private function setFile(array $file)
     {
         $this->file = $file;
     }
@@ -43,34 +58,39 @@ class FileReader
             return false;
         }
 
-        return !empty($this->file['tmp_name']);
+        return !empty($this->file[self::TEMP_NAME]);
     }
 
-    public function getData()
+    /**
+     * @return array
+     */
+    public function getData() : array
     {
         if (!$this->hasData()) {
             return [];
         }
 
-        $fileContents = \file($this->file['tmp_name']);
+        if ($this->sourceData === null) {
+            $fileContents = \file($this->file[self::TEMP_NAME]);
 
-        $data = [];
-        foreach ($fileContents as $rowNumber => $row) {
-            if (!$rowNumber) {
-                continue;
+            $this->sourceData = [];
+            foreach ($fileContents as $rowNumber => $row) {
+                if (!$rowNumber) {
+                    continue;
+                }
+                $rowData = \explode(",", $row);
+                if (!isset($rowData[1]) || !$this->date->isDate($rowData[0])) {
+                    continue;
+                }
+                $rowData[0] = \date("Y-m-d", \strtotime($rowData[0]));
+                $rowData[1] = (int)$rowData[1];
+                if (!$rowData[1]) {
+                    $rowData[1] = $this->config->getConfig('avg_story_point');
+                }
+                $this->sourceData[] = $rowData;
             }
-            $rowData = \explode(",", $row);
-            if (!isset($rowData[1]) || !$this->date->isDate($rowData[0])) {
-                continue;
-            }
-            $rowData[0] = \date("Y-m-d", \strtotime($rowData[0]));
-            $rowData[1] = (int)$rowData[1];
-            if (!$rowData[1]) {
-                $rowData[1] = $this->config->getConfig('avg_story_point');
-            }
-            $data[] = $rowData;
         }
 
-        return $data;
+        return $this->sourceData;
     }
 }

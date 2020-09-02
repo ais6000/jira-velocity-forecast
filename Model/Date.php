@@ -6,18 +6,19 @@ class Date
     const API_URL = "https://date.nager.at/api/v2/PublicHolidays/"; // 2020/FI
 
     /**
-     * @var string
+     * @var Country
      */
-    private $currentCountry;
+    private $country;
 
     /**
      * @var array
      */
     private $holidays;
 
-    public function __construct($currentCountry)
-    {
-        $this->currentCountry = $currentCountry;
+    public function __construct(
+        Country $country
+    ) {
+        $this->country = $country;
         $this->holidays = [];
     }
 
@@ -51,7 +52,7 @@ class Date
 
         $year = \date("Y", \strtotime($date));
         if (!isset($this->holidays[$year])) {
-            $ch = \curl_init(\sprintf(self::API_URL . "%s/%s", $year, \strtolower($this->currentCountry)));
+            $ch = \curl_init(\sprintf(self::API_URL . "%s/%s", $year, \strtolower($this->country->getCurrentCountry())));
             \curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $holidayData = \curl_exec($ch);
             if ($holidayData === false || \curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {

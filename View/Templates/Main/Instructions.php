@@ -1,4 +1,4 @@
-<?php if (!$hasData): ?>
+<?php if (!isset($velocityData)): ?>
     <div class="card" style="margin-top: 40px;">
         <div class="card-header">
             <svg width="1.6em" height="1.6em" viewBox="0 0 16 16" class="bi bi-patch-question" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
@@ -28,11 +28,11 @@
                 factor affecting recent output, when compared with earliest available data, that will not be reflected in the histogram.
             </p>
             <ul style="list-style-type: none;">
-                <li>1. Log in to your Jira account and navigate to https://&lt;path-to-jira&gt;/issues</a></li>
+                <li>1. Log in to your Jira account and navigate to <span class="text-info">https://&lt;path-to-jira&gt;/issues</span></li>
                 <li>2. Use filters to build the data set suitable for your need. Only completed issues should be included</li>
-                <li><ul><li>Advanced filter example: <i>"resolution = Done AND assignee in (membersOf("Name of your team")) ORDER BY resolved DESC"</i></li></ul></li>
-                <li><ul><li><b>Important!</b> Make sure <i>"resolution = Done"</i> filter is always active to filter out incomplete issues!</li></ul></li>
-                <li>3. Select just the following columns to be visible, in this order: "Resolved", "Story Points"</li>
+                <li><ul><li>Advanced filter example: <code>"resolution = Done AND assignee in (membersOf("Name of your team")) ORDER BY resolved DESC"</code></li></ul></li>
+                <li><ul><li><b>Important!</b> Make sure <code>"resolution = Done"</code> filter is always active to filter out incomplete issues!</li></ul></li>
+                <li>3. Select just the following columns to be visible, in this order: <code>"Resolved", "Story Points"</code></li>
                 <li><ul><li>Practically any columns may be visible, but make sure to have the first two columns from left as described above</li></ul></li>
                 <li><ul><li>If you do not have valid story point data available, you can ignore the story points column. Just make sure to always use "Number of stories" metric with the tool</li></ul></li>
                 <li>4. Export -> CSV (Current fields) -> Delimiter: ","</li>
