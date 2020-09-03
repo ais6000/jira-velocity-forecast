@@ -1,63 +1,51 @@
 <?php
 namespace View;
 
-use Model\Country;
-use Model\Date;
-use Model\FileReader;
-use Model\Request;
-use Model\Velocity;
-use Resources\Config;
-use View\Model\GraphsJs;
+use View\Block\Form;
+use View\Block\Graphs;
+use View\Block\Instructions;
+use View\Block\Title;
+use View\Block\Warnings;
 
-/**
- * @TODO: extract template getters into separate classes / interface
- */
 class View
 {
     /**
-     * @var FileReader
+     * @var Form
      */
-    private $fileReader;
+    private $form;
 
     /**
-     * @var Date
+     * @var Graphs
      */
-    private $date;
+    private $graphs;
 
     /**
-     * @var Request
+     * @var Instructions
      */
-    private $request;
+    private $instructions;
 
     /**
-     * @var Config
+     * @var Title
      */
-    private $config;
+    private $title;
 
     /**
-     * @var Country
+     * @var Warnings
      */
-    private $country;
-
-    /**
-     * @var Velocity
-     */
-    private $velocity;
+    private $warnings;
 
     public function __construct(
-        FileReader $fileReader,
-        Date $date,
-        Request $request,
-        Config $config,
-        Country $country,
-        Velocity $velocity
+        Form $form,
+        Graphs $graphs,
+        Instructions $instructions,
+        Title $title,
+        Warnings $warnings
     ) {
-        $this->fileReader = $fileReader;
-        $this->date = $date;
-        $this->request = $request;
-        $this->config = $config;
-        $this->country = $country;
-        $this->velocity = $velocity;
+        $this->form = $form;
+        $this->graphs = $graphs;
+        $this->instructions = $instructions;
+        $this->title = $title;
+        $this->warnings = $warnings;
     }
 
     public function execute()
@@ -92,146 +80,12 @@ class View
     private function getMain()
     {
         $content = "";
-        $content .= $this->getTitle();
-        $content .= $this->getWarnings();
-        $content .= $this->getForm();
-        $content .= $this->getInstructions();
-        $content .= $this->getGraphs();
+        $content .= $this->title->render();
+        $content .= $this->warnings->render();
+        $content .= $this->form->render();
+        $content .= $this->instructions->render();
+        $content .= $this->graphs->render();
 
         return \str_replace("{{content}}", $content, \file_get_contents("View/Templates/Main.tpl"));
-    }
-
-    /**
-     * @return string
-     */
-    private function getTitle() : string
-    {
-        $countrySelection = "";
-        if (!$this->fileReader->hasData()) {
-            $flagOptions = "";
-            foreach (Country::COUNTRIES as $country) {
-                $flagOptions .= \str_replace(
-                    [
-                        "{{country}}",
-                        "{{countryLowercase}}",
-                    ],
-                    [
-                        $country,
-                        \strtolower($country),
-                    ],
-                    \file_get_contents("View/Templates/Main/CountrySelection/FlagOption.tpl")
-                );
-            }
-            $countrySelection .= \str_replace(
-                [
-                    "{{countryLowercase}}",
-                    "{{flagOptions}}"
-                ],
-                [
-                    \strtolower($this->country->getCurrentCountry()),
-                    $flagOptions,
-                ],
-                \file_get_contents("View/Templates/Main/CountrySelection.tpl")
-            );
-        }
-
-        return \str_replace(
-            "{{countrySelection}}",
-            $countrySelection,
-            \file_get_contents("View/Templates/Main/Title.tpl")
-        );
-    }
-
-    /**
-     * @return string
-     */
-    private function getWarnings() : string
-    {
-        $warningsContent = "";
-        if ($this->fileReader->hasData() && empty($this->velocity->getVelocityData())) {
-            $warningsContent .= \file_get_contents("View/Templates/Main/Warnings.tpl");
-        }
-
-        return $warningsContent;
-    }
-
-    /**
-     * @return string
-     */
-    private function getForm() : string
-    {
-        $formContent = "";
-        if (!$this->fileReader->hasData()) {
-            $formContent .= \str_replace(
-                [
-                    "{{baseUrl}}",
-                    "{{paramFile}}",
-                    "{{paramDays}}",
-                    "{{paramMetric}}",
-                    "{{metricNumOfStories}}",
-                    "{{metricStoryPoints}}",
-                ],
-                [
-                    $this->request->getBaseUrl(),
-                    Request::PARAM_FILE,
-                    Request::PARAM_DAYS,
-                    Request::PARAM_METRIC,
-                    $this->config->getConfig('metric_num_of_stories'),
-                    $this->config->getConfig('metric_story_points'),
-                ],
-                \file_get_contents("View/Templates/Main/Form.tpl")
-            );
-        }
-
-        return $formContent;
-    }
-
-    /**
-     * @return string
-     */
-    private function getInstructions() : string
-    {
-        $instructionsContent = "";
-        if (!$this->fileReader->hasData()) {
-            $instructionsContent .= \str_replace(
-                "{{iterations-count}}",
-                $this->config->getConfig('iterations'),
-                \file_get_contents("View/Templates/Main/Instructions.tpl")
-            );
-        }
-
-        return $instructionsContent;
-    }
-
-    /**
-     * @return string
-     */
-    private function getGraphs() : string
-    {
-        $graphsContent = "";
-        if ($this->fileReader->hasData()) {
-            $graphJs = new GraphsJs($this->request, $this->config, $this->velocity);
-            $graphsContent .= \str_replace(
-                [
-                    "{{baseUrl}}",
-                    "{{issueCount}}",
-                    "{{firstDate}}",
-                    "{{lastDate}}",
-                    "{{graphHistogram}}",
-                    "{{graphTrend}}",
-                ],
-                [
-                    $this->request->getBaseUrl(),
-                    $this->velocity->getIssueCount(),
-                    \date("j.n.Y", \strtotime($this->velocity->getEdgeDates()[0])),
-                    \date("j.n.Y", \strtotime($this->velocity->getEdgeDates()[1])),
-                    $graphJs->getHistogram(),
-                    $graphJs->getTrend(),
-                ],
-                \file_get_contents("View/Templates/Main/Graphs.tpl")
-            );
-        }
-
-        return $graphsContent;
     }
 }

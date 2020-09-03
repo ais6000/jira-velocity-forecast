@@ -19,6 +19,6 @@ class Config
      */
     public function getConfig(string $option)
     {
-        return isset($this->config[$option]) ? $this->config[$option] : null;
+        return $this->config[$option] ?? null;
     }
 }
