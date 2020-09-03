@@ -5,6 +5,7 @@ class Main
 {
     public function execute()
     {
+        // Models
         $config = new \Resources\Config();
         $request = new \Model\Request($config);
         $country = new \Model\Country($request);
@@ -12,7 +13,21 @@ class Main
         $fileReader = new \Model\FileReader($config, $date, $request);
         $velocity = new \Model\Velocity($fileReader, $date, $request, $config);
 
-        $view = new \View\View($fileReader, $date, $request, $config, $country, $velocity);
+        // Blocks
+        $formBlock = new \View\Block\Form($fileReader, $request, $config);
+        $graphsBlock = new \View\Block\Graphs($fileReader, $request, $config, $velocity);
+        $instructionsBlock = new \View\Block\Instructions($fileReader, $config);
+        $titleBlock = new \View\Block\Title($fileReader, $country);
+        $warningsBlock = new \View\Block\Warnings($fileReader, $velocity);
+
+        // View
+        $view = new \View\View(
+            $formBlock,
+            $graphsBlock,
+            $instructionsBlock,
+            $titleBlock,
+            $warningsBlock
+        );
         $view->execute();
     }
 }
