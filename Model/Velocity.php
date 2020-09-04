@@ -45,6 +45,11 @@ class Velocity
      */
     private $intervalData;
 
+    /**
+     * @var int
+     */
+    private $avgStoryPoint;
+
     public function __construct(
         FileReader $fileReader,
         Date $date,
@@ -130,7 +135,7 @@ class Velocity
                     $dailyData = $dateVelocity['number_of_stories'] ?? 0;
                 }
                 $intervalData[] = $dailyData;
-                if ($intervalCounter >= (int)$this->request->getDays() * 1.4) {
+                if ($intervalCounter >= (int)$this->request->getDays()) {
                     $intervalTitle = \date("Y-m-d", \strtotime($currentDate));
                     $this->intervalData[$intervalTitle] = \array_sum($intervalData);
                     $intervalData = [];
@@ -169,8 +174,16 @@ class Velocity
                             continue;
                         }
                         $this->velocityDates[$currentDate]['number_of_stories']++;
-                        $this->velocityDates[$currentDate]['story_points'] += (int)$dataRow[1];
+                        $addedStoryPoints = $dataRow[1];
+                        if (!$addedStoryPoints) {
+                            $addedStoryPoints = $this->getAverageStoryPointValue();
+                        }
+                        $this->velocityDates[$currentDate]['story_points'] += $addedStoryPoints;
                     }
+
+                    $this->velocityDates[$currentDate]['story_points'] = \round(
+                        $this->velocityDates[$currentDate]['story_points']
+                    );
                 }
 
                 $currentDate = \date("Y-m-d", \strtotime("+1 day", \strtotime($currentDate)));
@@ -178,5 +191,24 @@ class Velocity
         }
 
         return $this->velocityDates;
+    }
+
+    /**
+     * @return float
+     */
+    private function getAverageStoryPointValue() : float
+    {
+        if ($this->avgStoryPoint === null) {
+            $sourceData = $this->fileReader->getData();
+            $storyPointValues = [];
+            foreach ($sourceData as $dataRow) {
+                if ($dataRow[1]) {
+                    $storyPointValues[] = $dataRow[1];
+                }
+            }
+            $this->avgStoryPoint = \array_sum($storyPointValues) / \count($storyPointValues);
+        }
+
+        return $this->avgStoryPoint;
     }
 }

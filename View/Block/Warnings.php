@@ -31,7 +31,7 @@ class Warnings implements BlockInterface
     {
         $warningsContent = "";
         if ($this->fileReader->hasData() && empty($this->velocity->getVelocityData())) {
-            $warningsContent .= \file_get_contents("View/Templates/Main/Warnings.tpl");
+            $warningsContent .= \file_get_contents(ROOT . "View/Templates/Main/Warnings.tpl");
         }
 
         return $warningsContent;

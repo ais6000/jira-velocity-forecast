@@ -1,0 +1,32 @@
+/* Title */
+.title-row {
+    margin-bottom: 40px;
+}
+.flag-dd {
+    margin: 5px 15px 0 0;
+}
+.flag-dd .dropdown-toggle {
+    border: 1px solid silver;
+}
+
+/* Form */
+.form-item-container {
+    height: 90px;
+}
+
+/* Instructions */
+.instructions-container {
+    margin-top: 40px;
+}
+.instructions-steps {
+    list-style-type: none;
+}
+.instructions-csv {
+    background-color: #eee;
+    padding: 10px;
+}
+
+/* Misc */
+.bi {
+    margin-right: 8px;
+}

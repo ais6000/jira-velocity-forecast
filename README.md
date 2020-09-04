@@ -7,4 +7,4 @@ UI.
 
 ### How to use
 1. Set up anywhere within a web server that supports PHP
-2. Open index.php in browser
+2. Navigate to public/index.php with a web browser

@@ -66,7 +66,7 @@ class Graphs implements BlockInterface
                     $graphJs->getHistogram(),
                     $graphJs->getTrend(),
                 ],
-                \file_get_contents("View/Templates/Main/Graphs.tpl")
+                \file_get_contents(ROOT . "View/Templates/Main/Graphs.tpl")
             );
         }
 

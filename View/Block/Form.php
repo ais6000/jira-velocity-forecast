@@ -56,7 +56,7 @@ class Form implements BlockInterface
                     $this->config->getConfig('metric_num_of_stories'),
                     $this->config->getConfig('metric_story_points'),
                 ],
-                \file_get_contents("View/Templates/Main/Form.tpl")
+                \file_get_contents(ROOT . "View/Templates/Main/Form.tpl")
             );
         }
 
