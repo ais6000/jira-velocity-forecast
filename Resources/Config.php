@@ -8,7 +8,6 @@ class Config
      */
     private $config = [
         'iterations' => 50000,
-        'avg_story_point' => 2,
         'metric_story_points' => '1',
         'metric_num_of_stories' => '2',
     ];

@@ -84,9 +84,6 @@ class FileReader
                 }
                 $rowData[0] = \date("Y-m-d", \strtotime($rowData[0]));
                 $rowData[1] = (int)$rowData[1];
-                if (!$rowData[1]) {
-                    $rowData[1] = $this->config->getConfig('avg_story_point');
-                }
                 $this->sourceData[] = $rowData;
             }
         }
