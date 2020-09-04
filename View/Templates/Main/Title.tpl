@@ -1,4 +1,4 @@
-<div class="row" style="margin-bottom: 40px;">
+<div class="row" class="title-row">
     <div class="col-9">
         <h1>Jira velocity forecast tool</h1>
     </div>

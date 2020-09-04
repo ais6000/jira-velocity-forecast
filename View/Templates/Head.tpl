@@ -24,5 +24,6 @@
           href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css"
           integrity="sha512-Cv93isQdFwaKBV+Z4X8kaVBYWHST58Xb/jVOcV9aRsGSArZsgAnFIhMpDoMDcFNoUtday1hdjn0nGp3+KZyyFw=="
           crossorigin="anonymous" />
+    <link rel="stylesheet" href="resources/css/styles.css">
     <title>Jira velocity forecast tool</title>
 </head>
