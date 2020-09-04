@@ -5,20 +5,17 @@
     </svg>
     Analysed {{issueCount}} stories from between {{firstDate}} - {{lastDate}}
 </div>
-<div class="row bg-white">
-    <div class="col reset-container">
-        <a class="btn btn-outline-primary" href="{{baseUrl}}">Reset</a>
-    </div>
-</div>
-<div class="row bg-white">
-    <div class="col" id="graph-histogram"></div>
-</div>
-<div class="row bg-white">
-    <div class="col" id="graph-trend"></div>
-</div>
-<div class="row bg-white">
-    <div class="col reset-container">
-        <a class="btn btn-outline-primary" href="{{baseUrl}}">Reset</a>
+<div class="card">
+    <div class="card-body">
+        <div>
+            <a class="btn btn-outline-primary" href="{{baseUrl}}">Reset</a>
+        </div>
+        <div id="graph-histogram"></div>
+        <hr />
+        <div id="graph-trend"></div>
+        <div>
+            <a class="btn btn-outline-primary" href="{{baseUrl}}">Reset</a>
+        </div>
     </div>
 </div>
 <script type="text/javascript">
