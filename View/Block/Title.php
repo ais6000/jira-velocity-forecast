@@ -42,7 +42,7 @@ class Title implements BlockInterface
                         $country,
                         \strtolower($country),
                     ],
-                    \file_get_contents("View/Templates/Main/CountrySelection/FlagOption.tpl")
+                    \file_get_contents(ROOT . "View/Templates/Main/CountrySelection/FlagOption.tpl")
                 );
             }
             $countrySelection .= \str_replace(
@@ -54,14 +54,14 @@ class Title implements BlockInterface
                     \strtolower($this->country->getCurrentCountry()),
                     $flagOptions,
                 ],
-                \file_get_contents("View/Templates/Main/CountrySelection.tpl")
+                \file_get_contents(ROOT . "View/Templates/Main/CountrySelection.tpl")
             );
         }
 
         return \str_replace(
             "{{countrySelection}}",
             $countrySelection,
-            \file_get_contents("View/Templates/Main/Title.tpl")
+            \file_get_contents(ROOT . "View/Templates/Main/Title.tpl")
         );
     }
 }

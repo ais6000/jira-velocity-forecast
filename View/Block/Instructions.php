@@ -34,7 +34,7 @@ class Instructions implements BlockInterface
             $instructionsContent .= \str_replace(
                 "{{iterations-count}}",
                 $this->config->getConfig('iterations'),
-                \file_get_contents("View/Templates/Main/Instructions.tpl")
+                \file_get_contents(ROOT . "View/Templates/Main/Instructions.tpl")
             );
         }
 

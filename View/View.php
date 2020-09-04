@@ -63,7 +63,7 @@ class View
      */
     private function getHead()
     {
-        return \file_get_contents('View/Templates/Head.tpl');
+        return \file_get_contents(ROOT . 'View/Templates/Head.tpl');
     }
 
     /**
@@ -71,7 +71,7 @@ class View
      */
     private function getFoot()
     {
-        return \file_get_contents('View/Templates/Foot.tpl');
+        return \file_get_contents(ROOT . 'View/Templates/Foot.tpl');
     }
 
     /**
@@ -86,6 +86,10 @@ class View
         $content .= $this->instructions->render();
         $content .= $this->graphs->render();
 
-        return \str_replace("{{content}}", $content, \file_get_contents("View/Templates/Main.tpl"));
+        return \str_replace(
+            "{{content}}",
+            $content,
+            \file_get_contents(ROOT . "View/Templates/Main.tpl")
+        );
     }
 }
