@@ -5,6 +5,8 @@ For example providing data targeted to a specific team will result in a forecast
 graph can be used, for example, in planning future sprints of any length. More detailed information provided in the tool
 UI.
 
+![Velocity example](public/resources/images/examples/velocity.png)
+
 ### How to use
 1. Set up anywhere within a web server that supports PHP
 2. Navigate to public/index.php with a web browser
